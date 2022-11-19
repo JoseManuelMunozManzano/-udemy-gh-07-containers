@@ -10,7 +10,27 @@ env:
 jobs:
   test:
     environment: testing
+    # Podría tener sentido usar contenedores con nuestras propias definiciones o basadas en imágenes públicas
+    # para tener un control total sobre el entorno existente.
+    # Un ejemplo práctico podría ser una página web personal.
+    # En este ejemplo la máquina que corre ubuntu-latest solo será el huesped de la imagen del container.
+    # Los pasos que se ejecuten en la imagen no tendrán acceso directo a la máquina ni a las herramientas disponibles
+    # en esa máquina.
     runs-on: ubuntu-latest
+    # Para poner un job y sus steps en un contenedor tenemos que añadir la key container y especificar el nombre de la
+    # imagen que queremos usar.
+    # Para estos nombres de imágenes podemos usar las disponibles en repositorios públicos, como Docker Hub.
+    # Ahí se pueden publicar nuestras propias imágenes pero también existen imágenes oficiales, como la de node.
+    # https://hub.docker.com/search?q=
+    # https://hub.docker.com/_/node
+    # Esta es una forma de indicarlo
+    # container: node:16
+    # Y esta otra forma de indicarlo, muy importante si tenemos más información que queremos pasar al container,
+    # como variables de entorno necesarias para la imagen (no los steps)
+    container:
+      image: node:16
+      # env:
+    # Estas son las variables de entorno necesarias a nivel de step
     env:
       MONGODB_CONNECTION_PROTOCOL: mongodb+srv
       MONGODB_CLUSTER_ADDRESS: neimerccluster.7sldx.mongodb.net
