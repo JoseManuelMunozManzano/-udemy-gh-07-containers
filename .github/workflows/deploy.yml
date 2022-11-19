@@ -32,11 +32,33 @@ jobs:
       # env:
     # Estas son las variables de entorno necesarias a nivel de step
     env:
-      MONGODB_CONNECTION_PROTOCOL: mongodb+srv
-      MONGODB_CLUSTER_ADDRESS: neimerccluster.7sldx.mongodb.net
-      MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
-      MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+      MONGODB_CONNECTION_PROTOCOL: mongodb
+      # Para comunicarse con un services, si el job se ejecuta en un container (como es el caso), entonces conectarse a
+      # un service container es muy fácil porque GitHub Actions creará automáticamente un entorno de red donde se puede
+      # usar el label del service container como dirección de conexión.
+      # Con esto se puede ejecutar el workflow y ya no necesita ningún cluster externo de MongoDB
+      MONGODB_CLUSTER_ADDRESS: mongodb
+      # El usuario y contraseña aquí deben ser los mismos que se hayan puesto en el services
+      # para poder conectarse correctamente.
+      MONGODB_USERNAME: root
+      MONGODB_PASSWORD: example
       PORT: 8080
+    # Ejemplo de un service container para definir una BD de testing que existirá mientras se ejecuta nuestro workflow.
+    # Los service containers se pueden usar con container y con jobs que se ejecutan directamente en la máquina.
+    # Pero los service containers, en cualquier caso, siempre se ejecutan en containers.
+    # Para usarlos se usa la key services.
+    # Los services se definen a nivel de jobs. Cada job su services.
+    # Para el services se añade un identificador (un label, en el ejmplo mongodb)
+    # Y luego indentado se indican keys específicas para ese service. Esas keys están definidas por GitHub Actions.
+    services:
+      mongodb:
+        # https://hub.docker.com/_/mongo
+        image: mongo
+        env:
+          # Como esta BD solo existe en el workflow (cuando termine deja de existir) el usuario y contraseña puede
+          # ser cualquier cosa.
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: example
     steps:
       - name: Get Code
         uses: actions/checkout@v3
